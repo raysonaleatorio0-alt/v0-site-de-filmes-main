@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { Header } from "@/components/header";
 import { HeroBanner } from "@/components/hero-banner";
 import { RecentContentsRow } from "@/components/recent-contents-row";
