@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { Header } from "@/components/header";
 import { SearchClient } from "@/components/search-client";
 import { Suspense } from "react"; // Adicionado aqui
