@@ -24,7 +24,7 @@ export default function SearchPage() {
       <footer className="py-8 mt-12 border-t border-border">
         <div className="container mx-auto px-4 text-center">
           <p className="text-muted-foreground text-sm">
-            CineFlux - Todos os dados fornecidos por TMDB
+            CineFlux - Todos os dados fornecidos por TMDB e MEGAEMBED
           </p>
         </div>
       </footer>
