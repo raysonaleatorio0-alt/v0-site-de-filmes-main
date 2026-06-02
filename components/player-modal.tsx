@@ -22,12 +22,14 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
   const [currentQuality, setCurrentQuality] = useState<string | null>(null);
   const [playerType, setPlayerType] = useState<"video" | "iframe" | "error">("error");
   const [loading, setLoading] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(true);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inactivityTimeoutRef = useRef<NodeJS.Timeout>();
+  const iframeLoadTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (!isOpen || !embedUrl) {
@@ -41,10 +43,14 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
 
     const resolveUrl = async () => {
       try {
-        // Se for MegaEmbed (mgeb.top), mostrar logo sem esperar
-        if (embedUrl.includes("mgeb.top")) {
-          setResolvedUrl(embedUrl);
-          setPlayerType("iframe");
+        // Se for MegaEmbed ou mgeb.top embed, usar como iframe
+        if (embedUrl.includes("megaembed.com") || embedUrl.includes("mgeb.top")) {
+          console.log("✅ Detectado MegaEmbed/mgeb.top:", embedUrl);
+          // Evitar reload desnecessário
+          if (resolvedUrl !== embedUrl) {
+            setResolvedUrl(embedUrl);
+            setPlayerType("iframe");
+          }
           setLoading(false);
           return;
         }
@@ -176,6 +182,30 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
     }
   };
 
+  // Gerenciar timeout de carregamento do iframe
+  useEffect(() => {
+    if (playerType === "iframe") {
+      setIframeLoading(true);
+      // Auto-esconder spinner após 4 segundos mesmo que não tenha carregado
+      iframeLoadTimeoutRef.current = setTimeout(() => {
+        setIframeLoading(false);
+      }, 4000);
+    }
+
+    return () => {
+      if (iframeLoadTimeoutRef.current) {
+        clearTimeout(iframeLoadTimeoutRef.current);
+      }
+    };
+  }, [playerType, iframeKey]);
+
+  // Monitorar se modal foi fechado
+  useEffect(() => {
+    if (!isOpen) {
+      console.log("⏹️ Player modal foi fechado");
+    }
+  }, [isOpen]);
+
   // Gerenciar inatividade para esconder controles do iframe
   const handleMouseMove = () => {
     // Mostrar controles
@@ -270,19 +300,41 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
           </>
         ) : playerType === "iframe" && resolvedUrl ? (
           <>
+            {iframeLoading && (
+              <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/60">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative w-12 h-12">
+                    <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin"></div>
+                  </div>
+                  <p className="text-white text-sm">Carregando player...</p>
+                </div>
+              </div>
+            )}
             <iframe
               key={iframeKey}
               src={resolvedUrl}
               title={title}
-              className="w-full h-full border-0"
+              data-src={resolvedUrl}
+              className="w-full h-full border-0 relative z-30"
               allowFullScreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; xr-spatial-tracking"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation-by-user-activation allow-popups-to-escape-sandbox"
+              allow="autoplay encrypted-media picture-in-picture"
+              onLoad={() => {
+                console.log("✅ iframe carregado:", resolvedUrl);
+                setIframeLoading(false);
+                if (iframeLoadTimeoutRef.current) clearTimeout(iframeLoadTimeoutRef.current);
+              }}
+              onError={() => {
+                console.error("❌ iframe erro ao carregar:", resolvedUrl);
+                setIframeLoading(false);
+              }}
             />
             
             {/* Botão para recarregar iframe (útil para MegaEmbed) */}
             <button
-              onClick={() => setIframeKey(prev => prev + 1)}
+              onClick={() => {
+                setIframeKey(prev => prev + 1);
+                setIframeLoading(true);
+              }}
               className={`absolute top-4 right-4 z-40 p-2 bg-black/70 hover:bg-black/90 rounded transition-all duration-200 ${
                 isControlsVisible ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}

@@ -1,5 +1,6 @@
 import { Header } from "@/components/header";
 import { SearchClient } from "@/components/search-client";
+import { Suspense } from "react"; // Adicionado aqui
 
 export default function SearchPage() {
   return (
@@ -8,11 +9,14 @@ export default function SearchPage() {
 
       <div className="pt-24 pb-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold text-foreground mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-6">
             Pesquisar
           </h1>
 
-          <SearchClient />
+          {/* O Suspense foi adicionado em volta do SearchClient */}
+          <Suspense fallback={<div className="text-muted-foreground">Carregando pesquisa...</div>}>
+            <SearchClient />
+          </Suspense>
         </div>
       </div>
 
