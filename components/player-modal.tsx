@@ -187,6 +187,7 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
   useEffect(() => {
     if (playerType === "iframe") {
       setIframeLoading(true);
+      setIframeError(false);
       // Auto-esconder spinner após 4 segundos mesmo que não tenha carregado
       iframeLoadTimeoutRef.current = setTimeout(() => {
         setIframeLoading(false);
@@ -322,13 +323,34 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
               onLoad={() => {
                 console.log("✅ iframe carregado:", resolvedUrl);
                 setIframeLoading(false);
+                setIframeError(false);
                 if (iframeLoadTimeoutRef.current) clearTimeout(iframeLoadTimeoutRef.current);
               }}
               onError={() => {
                 console.error("❌ iframe erro ao carregar:", resolvedUrl);
                 setIframeLoading(false);
+                setIframeError(true);
               }}
             />
+            {iframeError && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 p-6 text-center">
+                <div className="max-w-md rounded-lg border border-white/10 bg-slate-950/95 p-4">
+                  <p className="mb-3 text-white text-sm">
+                    Falha ao carregar o player externo. Isso pode ser causado por bloqueio de anúncios, política de terceiros ou pelo site de embed não permitir carregamento dentro do iframe.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setIframeKey((prev) => prev + 1);
+                      setIframeLoading(true);
+                      setIframeError(false);
+                    }}
+                    className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                  >
+                    Recarregar player
+                  </button>
+                </div>
+              </div>
+            )}
             
             {/* Botão para recarregar iframe (útil para MegaEmbed) */}
             <button
