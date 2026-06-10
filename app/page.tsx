@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic';
 import { Header } from "@/components/header";
 import { HeroBanner } from "@/components/hero-banner";
 import { RecentContentsRow } from "@/components/recent-contents-row";
@@ -10,6 +9,8 @@ import {
   getTopRatedMovies,
   getNowPlayingMovies,
 } from "@/lib/tmdb";
+
+export const revalidate = 3600; // Cache por 1 hora
 
 export default async function HomePage() {
   const [trending, popularMovies, popularTV, topRated, nowPlaying] = await Promise.all([
