@@ -317,7 +317,7 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
               data-src={resolvedUrl}
               className="w-full h-full border-0 relative z-30"
               allowFullScreen
-              allow="autoplay encrypted-media picture-in-picture; screen-wake-lock"
+              allow="autoplay; encrypted-media; picture-in-picture; screen-wake-lock; fullscreen"
               onLoad={() => {
                 console.log("✅ iframe carregado:", resolvedUrl);
                 setIframeLoading(false);
