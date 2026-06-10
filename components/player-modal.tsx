@@ -23,6 +23,7 @@ export function PlayerModal({ isOpen, onClose, embedUrl, title }: PlayerModalPro
   const [playerType, setPlayerType] = useState<"video" | "iframe" | "error">("error");
   const [loading, setLoading] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
+  const [iframeError, setIframeError] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
